@@ -199,12 +199,14 @@ Exp_function::~Exp_function()
 void Exp_function::print(std::ostream &os) const
 {
   os << name() << "(";
+  bool first = true;
   for (std::list<Expression *>::const_iterator it = args_.begin();
        it != args_.end(); it++)
   {
-    (*it)->print(os);
-    if (it == args_.begin())
+    if (!first)
       os << ',';
+    (*it)->print(os);
+    first = false;
   }
   os << ")";
 }
@@ -243,7 +245,6 @@ void St_list::print(std::ostream &os, int indent) const
   for (std::list<Statement *>::const_iterator it = statements_.begin();
        it != statements_.end(); it++)
   {
-    os << tab(indent);
     (*it)->print(os, indent);
   }
 }
@@ -282,17 +283,95 @@ void St_while::print(std::ostream &os, int indent) const
 {
   os << tab(indent) << "while ";
   if (condition())
-  {
     condition()->print(os);
-  }
   else
-  {
     os << "UNDEF";
-  }
   os << " {" << std::endl;
   if (body())
-  {
     body()->print(os, indent + 1);
-  }
   os << tab(indent) << "}" << std::endl;
+}
+
+//---------------------------------------------------------------------
+//  St_return::print の実装
+//---------------------------------------------------------------------
+void St_return::print(std::ostream &os, int indent) const
+{
+  os << tab(indent) << "return ";
+  if (value())
+    value()->print(os);
+  else
+    os << "UNDEF";
+  os << ";" << std::endl;
+}
+
+//---------------------------------------------------------------------
+//  St_function::print の実装
+//---------------------------------------------------------------------
+void St_function::print(std::ostream &os, int indent) const
+{
+  os << tab(indent) << name();
+  os << "(";
+  for (std::list<Expression *>::const_iterator it = args().begin();
+       it != args().end(); it++)
+  {
+    (*it)->print(os);
+    if (it != --args().end())
+      os << ", ";
+  }
+  os << ");" << std::endl;
+}
+
+//---------------------------------------------------------------------
+//  Variable::print の実装
+//---------------------------------------------------------------------
+void Variable::print(std::ostream &os) const
+{
+  os << Type_string(type()) << " " << name();
+}
+
+//---------------------------------------------------------------------
+//  Function::print の実装
+//---------------------------------------------------------------------
+void Function::print(std::ostream &os) const
+{
+  os << Type_string(type()) << " " << name() << "(";
+  for (std::list<Variable *>::const_iterator it = args().begin();
+       it != args().end(); it++)
+  {
+    (*it)->print(os);
+    if (it != --args().end())
+      os << ", ";
+  }
+  os << ") {" << std::endl;
+  for (std::list<Variable *>::const_iterator it = lvarlist().begin();
+       it != lvarlist().end(); it++)
+  {
+    os << tab(1);
+    (*it)->print(os);
+    os << ";" << std::endl;
+  }
+  os << std::endl;
+  body()->print(os, 1);
+  os << "}" << std::endl;
+}
+
+//---------------------------------------------------------------------
+//  Program::print の実装
+//---------------------------------------------------------------------
+void Program::print(std::ostream &os) const
+{
+  for (std::list<Variable *>::const_iterator it = varlist().begin();
+       it != varlist().end(); it++)
+  {
+    (*it)->print(os);
+    os << ";" << std::endl;
+  }
+  for (std::list<Function *>::const_iterator it = funclist().begin();
+       it != funclist().end(); it++)
+  {
+    (*it)->print(os);
+    os << std::endl;
+  }
+  main()->print(os);
 }

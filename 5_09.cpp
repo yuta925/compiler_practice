@@ -21,15 +21,19 @@ Statement *make_if()
     return new St_if(cond, then, els);
 }
 
-int main()
+Statement *make_while()
 {
     Exp_variable *i = new Exp_variable("i");
     Exp_variable *n = new Exp_variable("n");
     Expression *cond = new Exp_operation2(Operator_LE, i, n);
 
     Statement *body = make_if();
-    Statement *st_while = new St_while(cond, body);
+    return new St_while(cond, body);
+}
 
-    st_while->print(std::cout);
+int main()
+{
+    Statement *st_while = make_while();
+    st_while->print(std::cout, 0);
     return 0;
 }

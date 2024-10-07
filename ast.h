@@ -274,6 +274,126 @@ public:
 };
 
 //---------------------------------------------------------------------
-//  class Exp_function
-//  関数呼び出しを表現する
+//  class St_return
+//  return文を表現する
 //---------------------------------------------------------------------
+class St_return : public Statement
+{
+private:
+  Expression *value_;
+
+public:
+  St_return(Expression *value) : value_(value) {}
+  ~St_return() { delete value_; };
+  const Expression *value() const { return value_; }
+  void print(std::ostream &os, int indent = 0) const;
+};
+
+//---------------------------------------------------------------------
+//  class St_function
+//  関数呼び出し文を表現する
+//---------------------------------------------------------------------
+class St_function : public Statement
+{
+private:
+  Exp_function function_;
+
+public:
+  St_function(const std::string &name, const std::list<Expression *> &args) : function_(name, args) {}
+  ~St_function() {}
+  const std::string &name() const { return function_.name(); }
+  const std::list<Expression *> &args() const { return function_.args(); }
+  void print(std::ostream &os, int indent = 0) const;
+};
+
+//---------------------------------------------------------------------
+//  class Variable
+//  変数宣言を表現する
+//---------------------------------------------------------------------
+class Variable
+{
+private:
+  Type type_;
+  std::string name_;
+
+public:
+  Variable(Type type, const std::string &name) : type_(type), name_(name) {}
+  ~Variable() {}
+  Type type() const { return type_; }
+  const std::string &name() const { return name_; }
+  void print(std::ostream &os) const;
+};
+
+//---------------------------------------------------------------------
+//  class Function
+//  関数の宣言全体を表現する
+//---------------------------------------------------------------------
+class Function
+{
+private:
+  Type type_;
+  std::string name_;
+  std::list<Variable *> args_;
+  std::list<Variable *> lvarlist_;
+  Statement *body_;
+
+public:
+  Function(Type type,
+           const std::string &name,
+           const std::list<Variable *> &args,
+           const std::list<Variable *> &lvarlist,
+           Statement *body)
+      : type_(type), name_(name), args_(args), lvarlist_(lvarlist), body_(body) {}
+  ~Function()
+  {
+    for (auto arg : args_)
+      delete arg;
+    args_.clear();
+
+    for (auto var : lvarlist_)
+      delete var;
+    lvarlist_.clear();
+
+    delete body_;
+  }
+  Type type() const { return type_; }
+  const std::string &name() const { return name_; }
+  const std::list<Variable *> &args() const { return args_; }
+  const std::list<Variable *> &lvarlist() const { return lvarlist_; }
+  const Statement *body() const { return body_; }
+  void print(std::ostream &os) const;
+};
+
+//---------------------------------------------------------------------
+//  class Program
+//  クラスの宣言を表現する
+//---------------------------------------------------------------------
+class Program
+{
+private:
+  std::list<Variable *> varlist_;
+  std::list<Function *> funclist_;
+  Function *main_;
+
+public:
+  Program(const std::list<Variable *> &varlist,
+          const std::list<Function *> &funclist,
+          Function *main)
+      : varlist_(varlist), funclist_(funclist), main_(main) {}
+  ~Program()
+  {
+    for (auto var : varlist_)
+      delete var;
+    varlist_.clear();
+
+    for (auto func : funclist_)
+      delete func;
+    funclist_.clear();
+
+    delete main_;
+  }
+  const std::list<Variable *> &varlist() const { return varlist_; }
+  const std::list<Function *> &funclist() const { return funclist_; }
+  const Function *main() const { return main_; }
+  void print(std::ostream &os) const;
+};
