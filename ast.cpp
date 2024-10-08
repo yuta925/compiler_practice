@@ -146,6 +146,26 @@ void Exp_variable::print(std::ostream &os) const
 }
 
 //---------------------------------------------------------------------
+//   Exp_variable::run の実装
+//---------------------------------------------------------------------
+int Exp_variable::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  std::map<std::string, int>::const_iterator p;
+  if ((p = lvar.find(name())) != lvar.end())
+    return p->second;
+  else if ((p = gvar.find(name())) != gvar.end())
+    return p->second;
+  else
+  {
+    std::cerr << "undefined variable " << name() << " " << std::endl;
+    exit(1);
+  }
+}
+
+//---------------------------------------------------------------------
 //   Exp_operation1::print の実装
 //---------------------------------------------------------------------
 void Exp_operation1::print(std::ostream &os) const
@@ -163,6 +183,25 @@ void Exp_operation1::print(std::ostream &os) const
 }
 
 //---------------------------------------------------------------------
+//   Exp_operation1::run の実装
+//---------------------------------------------------------------------
+int Exp_operation1::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  int v = operand()->run(func, gvar, lvar);
+  switch (operation())
+  {
+  case Operator_MINUS:
+    return -v;
+  default:
+    assert(0);
+    return 0;
+  }
+}
+
+//---------------------------------------------------------------------
 //   Exp_operation2:print の実装
 //---------------------------------------------------------------------
 void Exp_operation2::print(std::ostream &os) const
@@ -171,14 +210,52 @@ void Exp_operation2::print(std::ostream &os) const
   if (operand1() && operand2())
   {
     operand1()->print(os);
-    os << Operator_string(operation());
+    os << " " << Operator_string(operation()) << " ";
     operand2()->print(os);
   }
   else
-  {
     os << "UNDEF";
-  };
   os << ")";
+}
+
+//---------------------------------------------------------------------
+//   Exp_operation2:run の実装
+//---------------------------------------------------------------------
+int Exp_operation2::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  int v1 = operand1()->run(func, gvar, lvar);
+  int v2 = operand2()->run(func, gvar, lvar);
+  switch (operation())
+  {
+  case Operator_PLUS:
+    return v1 + v2;
+  case Operator_MINUS:
+    return v1 - v2;
+  case Operator_MUL:
+    return v1 * v2;
+  case Operator_DIV:
+    return v1 / v2;
+  case Operator_MOD:
+    return v1 % v2;
+  case Operator_LT:
+    return v1 < v2;
+  case Operator_GT:
+    return v1 > v2;
+  case Operator_LE:
+    return v1 <= v2;
+  case Operator_GE:
+    return v1 >= v2;
+  case Operator_NE:
+    return v1 != v2;
+  case Operator_EQ:
+    return v1 == v2;
+  default:
+    assert(0);
+    return 0;
+  }
 }
 
 //---------------------------------------------------------------------
@@ -212,29 +289,103 @@ void Exp_function::print(std::ostream &os) const
 }
 
 //---------------------------------------------------------------------
+//   Exp_function::run の実装
+//---------------------------------------------------------------------
+int Exp_function::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  // 引数の値のリストの計算
+  std::list<int> i_args;
+  for (std::list<Expression *>::const_iterator it = args_.begin();
+       it != args_.end(); it++)
+  {
+    // 引数の値を計算してリストに追加
+    i_args.push_back((*it)->run(func, gvar, lvar));
+  }
+  // 関数の実行
+  std::map<std::string, Function *>::const_iterator p;
+  std::string func_name = name();
+  if (func_name == "getint")
+  {
+    int i;
+    std::cin >> i;
+    return i;
+  }
+  else if (func_name == "getchar")
+  {
+    char c;
+    std::cin >> c;
+    return c;
+  }
+  else if (func_name == "putint")
+  {
+    int i = i_args.front(); // 引数値のリストの先頭
+    std::cout << i;
+    return 0;
+  }
+  else if (func_name == "putchar")
+  {
+    int i = i_args.front(); // 引数値のリストの先頭
+    std::cout << (char)i;
+    return 0;
+  }
+  else
+  {
+    if ((p = func.find(name())) != func.end())
+    {
+      Function *f = p->second;
+      return f->run(func, gvar, i_args);
+    }
+    else
+    {
+      std::cerr << "undefined function " << name() << std::endl;
+      exit(1);
+    }
+  }
+}
+
+//---------------------------------------------------------------------
 //  St_assign::print の実装
 //---------------------------------------------------------------------
 void St_assign::print(std::ostream &os, int indent) const
 {
-  os << tab(indent); // インデント（1段につきスペース2個）をつける
-  if (lhs())         // 左辺が NULL 出なければ
-  {
+  os << tab(indent);  // インデント（1段につきスペース2個）をつける
+  if (lhs())          // 左辺が NULL 出なければ
     lhs()->print(os); // 左辺を表示
-  }
   else
-  {
     os << "UNDEF";
-  }
   os << " = ";
-  if (rhs()) // 右辺が NULL 出なければ
-  {
+  if (rhs())          // 右辺が NULL 出なければ
     rhs()->print(os); // 右辺を表示
-  }
+  else
+    os << "UNDEF";
+  os << ";" << std::endl;
+}
+
+//---------------------------------------------------------------------
+//  St_assign::run の実装
+//---------------------------------------------------------------------
+Return_t St_assign::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  assert(lhs());
+  assert(rhs());
+  int i_rhs = rhs()->run(func, gvar, lvar);
+  if (lvar.find(lhs()->name()) != lvar.end())
+    lvar[lhs()->name()] = i_rhs;
+  else if (gvar.find(lhs()->name()) != gvar.end())
+    gvar[lhs()->name()] = i_rhs;
   else
   {
-    os << "UNDEF";
+    std::cerr << "undefined variable " << lhs()->name() << std::endl;
+    exit(1);
   }
-  os << ";" << std::endl;
+
+  return Return_t(false, 0);
 }
 
 //---------------------------------------------------------------------
@@ -248,6 +399,27 @@ void St_list::print(std::ostream &os, int indent) const
     (*it)->print(os, indent);
   }
 }
+
+//---------------------------------------------------------------------
+//  St_list::run の実装
+//---------------------------------------------------------------------
+Return_t St_list::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  for (std::list<Statement *>::const_iterator it = statements().begin();
+       it != statements().end(); it++)
+  {
+    assert(*it);                                // 念の為 NULL でないことを確認
+    Return_t rd = (*it)->run(func, gvar, lvar); // 実行
+    if (rd.val_is_returned)
+    {
+      return rd;
+    } // return 文が実行されていたら、rd をそのまま返す
+  }
+  return Return_t(false, 0); // return 文が一度も実行されていない場合
+};
 
 //---------------------------------------------------------------------
 //  St_if::print の実装
@@ -277,6 +449,25 @@ void St_if::print(std::ostream &os, int indent) const
 }
 
 //---------------------------------------------------------------------
+//  St_if::run の実装
+//---------------------------------------------------------------------
+Return_t St_if::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  if (condition()->run(func, gvar, lvar))
+    return Return_t(true, then_part()->run(func, gvar, lvar).return_val);
+  else
+  {
+    if (else_part())
+      return Return_t(true, else_part()->run(func, gvar, lvar).return_val);
+    else
+      return Return_t(false, 0);
+  }
+};
+
+//---------------------------------------------------------------------
 //  St_while::print の実装
 //---------------------------------------------------------------------
 void St_while::print(std::ostream &os, int indent) const
@@ -293,6 +484,27 @@ void St_while::print(std::ostream &os, int indent) const
 }
 
 //---------------------------------------------------------------------
+//  St_while::run の実装
+//---------------------------------------------------------------------
+Return_t St_while::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  if (condition())
+  {
+    while (condition()->run(func, gvar, lvar))
+    {
+      body()->run(func, gvar, lvar);
+      lvar["i"]++;
+    }
+    return Return_t(true, lvar["s"]);
+  }
+  else
+    return Return_t();
+}
+
+//---------------------------------------------------------------------
 //  St_return::print の実装
 //---------------------------------------------------------------------
 void St_return::print(std::ostream &os, int indent) const
@@ -304,6 +516,19 @@ void St_return::print(std::ostream &os, int indent) const
     os << "UNDEF";
   os << ";" << std::endl;
 }
+
+//---------------------------------------------------------------------
+//  St_return::run の実装
+//---------------------------------------------------------------------
+Return_t St_return::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  assert(value());
+  int rv = value()->run(func, gvar, lvar);
+  return Return_t(true, rv);
+};
 
 //---------------------------------------------------------------------
 //  St_function::print の実装
@@ -320,6 +545,29 @@ void St_function::print(std::ostream &os, int indent) const
       os << ", ";
   }
   os << ");" << std::endl;
+}
+
+//---------------------------------------------------------------------
+//  St_function::print の実装
+//---------------------------------------------------------------------
+Return_t St_function::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::map<std::string, int> &lvar) const
+{
+  function_.run(func, gvar, lvar);
+  return Return_t();
+  // std::map<std::string, Function *>::const_iterator p;
+  // if ((p = func.find(name())) != func.end())
+  // {
+  //   Function *f = p->second;
+  //   return f->run(func, gvar, lvar);
+  // }
+  // else
+  // {
+  //   std::cerr << "undefined function " << name() << std::endl;
+  //   exit(1);
+  // }
 }
 
 //---------------------------------------------------------------------
@@ -354,6 +602,17 @@ void Function::print(std::ostream &os) const
   os << std::endl;
   body()->print(os, 1);
   os << "}" << std::endl;
+}
+
+//---------------------------------------------------------------------
+//  Function::run の実装
+//---------------------------------------------------------------------
+int Function::run(
+    std::map<std::string, Function *> &func,
+    std::map<std::string, int> &gvar,
+    std::list<int> &i_args) const
+{
+  return i_args.front(); // 仮の実装
 }
 
 //---------------------------------------------------------------------
