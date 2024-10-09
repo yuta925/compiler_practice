@@ -1,0 +1,10 @@
+
+  
+	
+int char else if return while
+;, () {} []
+-+*/%&= == != > >= < <=
+1 2 12 123 0123456 00123456789
+a b c abc ABC main x123 p000Ax3
+_program u_p0x_A0x_774
+'a' 'b' '0' '\t' '\n' '\'' '\\'
