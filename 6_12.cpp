@@ -3,41 +3,48 @@
 
 Statement *make_if()
 {
-    // cond: i<0
-    Expression *cond = new Exp_operation2(
-        Operator_LT,
-        new Exp_variable("i"),
-        new Exp_constant(Type_INT, 0));
+    Exp_variable *i = new Exp_variable("i");
+    Exp_variable *s = new Exp_variable("s");
+    Exp_constant *zero = new Exp_constant(Type_INT, 0);
 
-    // then: s = s - i;
-    Statement *then = new St_assign(
-        new Exp_variable("s"),
-        new Exp_operation2(
-            Operator_MINUS,
-            new Exp_variable("s"),
-            new Exp_variable("i")));
+    // cond 部の木の生成
+    Exp_operation2 *cond = new Exp_operation2(Operator_LT, i, zero);
 
-    // else s = s + i;
-    Statement *els = new St_assign(
-        new Exp_variable("s"),
-        new Exp_operation2(
-            Operator_PLUS,
-            new Exp_variable("s"),
-            new Exp_variable("i")));
+    // then 部の木の生成
+    Exp_operation2 *then_exp = new Exp_operation2(Operator_MINUS, s, i);
+    Statement *then = new St_assign(s, then_exp);
 
-    Statement *els2 = new St_return(new Exp_variable("s"));
+    // else 部の木の生成
+    Exp_operation2 *else_exp = new Exp_operation2(Operator_PLUS, s, i);
+    Statement *els = new St_assign(s, else_exp);
 
-    return new St_if(cond, then, els2);
+    return new St_if(cond, then, els);
 }
 
 Statement *make_while()
 {
-    Exp_variable *i = new Exp_variable("i");
-    Exp_variable *n = new Exp_variable("n");
-    Expression *cond = new Exp_operation2(Operator_LE, i, n);
+    // cond: i<=n
+    Expression *v11 = new Exp_variable("i");
+    Expression *v12 = new Exp_variable("n");
+    Expression *cond = new Exp_operation2(Operator_LE, v11, v12);
 
-    Statement *body = make_if();
-    return new St_while(cond, body);
+    // body
+    std::list<Statement *> slist;
+    // if 文
+    Statement *b1 = make_if();
+    slist.push_back(b1);
+    // i = i + 1;
+    Expression *v21 = new Exp_variable("i");
+    Expression *c2 = new Exp_constant(Type_INT, 1);
+    Expression *e2 = new Exp_operation2(Operator_PLUS, v21, c2);
+    Exp_variable *v22 = new Exp_variable("i");
+    Statement *b2 = new St_assign(v22, e2);
+    slist.push_back(b2);
+    Statement *body = new St_list(slist);
+
+    // while 文全体
+    Statement *s = new St_while(cond, body);
+    return s;
 }
 
 Function *make_function_asum()
@@ -58,15 +65,14 @@ Function *make_function_asum()
     Exp_constant *zero = new Exp_constant(Type_INT, 0);
     Exp_operation1 *minus_n = new Exp_operation1(Operator_MINUS, n);
 
-    // 変数の初期化
-    St_assign *init_s = new St_assign(s, zero);    // s を 0 に初期化
-    St_assign *init_i = new St_assign(i, minus_n); // i を -n に初期化
+    St_assign *init_i = new St_assign(s, zero);
+    St_assign *init_s = new St_assign(i, minus_n);
     Statement *st_while = make_while();
     St_return *ret = new St_return(s);
 
     std::list<Statement *> st_list;
-    st_list.push_back(init_s); // s の初期化を先に
-    st_list.push_back(init_i); // i の初期化を後に
+    st_list.push_back(init_i);
+    st_list.push_back(init_s);
     st_list.push_back(st_while);
     st_list.push_back(ret);
     Statement *body = new St_list(st_list);
@@ -76,14 +82,16 @@ Function *make_function_asum()
 
 int main(void)
 {
-    Function *function_asum = make_function_asum();
+    std::list<Expression *> arglist;
+    arglist.push_back(new Exp_constant(Type_INT, 5));
+    Expression *exp_function_asum = new Exp_function("asum", arglist);
 
     std::map<std::string, Function *> func;
     std::map<std::string, int> gvar;
-    std::list<int> i_arglist;
-    i_arglist.push_back(3);
-    int r = function_asum->run(func, gvar, i_arglist);
-    std::cout << r << std::endl;
+    std::map<std::string, int> lavar;
+    func["asum"] = make_function_asum();
+    int asum5 = exp_function_asum->run(func, gvar, lavar);
+    std::cout << "asum(5) = " << asum5 << std::endl;
 }
 
 // std::list<Expression *> arglist;

@@ -469,4 +469,5 @@ public:
   const std::list<Function *> &funclist() const { return funclist_; }
   const Function *main() const { return main_; }
   void print(std::ostream &os) const;
+  int run();
 };

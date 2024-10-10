@@ -228,6 +228,7 @@ int Exp_operation2::run(
 {
   int v1 = operand1()->run(func, gvar, lvar);
   int v2 = operand2()->run(func, gvar, lvar);
+
   switch (operation())
   {
   case Operator_PLUS:
@@ -327,8 +328,8 @@ int Exp_function::run(
   }
   else if (func_name == "putchar")
   {
-    int i = i_args.front(); // 引数値のリストの先頭
-    std::cout << (char)i;
+    char i = i_args.front(); // 引数値のリストの先頭
+    std::cout << i;
     return 0;
   }
   else
@@ -418,7 +419,7 @@ Return_t St_list::run(
       return rd;
     } // return 文が実行されていたら、rd をそのまま返す
   }
-  return Return_t(false, 0); // return 文が一度も実行されていない場合
+  return Return_t(); // return 文が一度も実行されていない場合
 };
 
 //---------------------------------------------------------------------
@@ -428,18 +429,12 @@ void St_if::print(std::ostream &os, int indent) const
 {
   os << tab(indent) << "if ";
   if (condition())
-  {
     condition()->print(os);
-  }
   else
-  {
     os << "UNDEF";
-  }
   os << " {" << std::endl;
   if (then_part())
-  {
     then_part()->print(os, indent + 1);
-  }
   if (else_part())
   {
     os << tab(indent) << "} else {" << std::endl;
@@ -457,15 +452,23 @@ Return_t St_if::run(
     std::map<std::string, int> &lvar) const
 {
   if (condition()->run(func, gvar, lvar))
-    return Return_t(true, then_part()->run(func, gvar, lvar).return_val);
+  {
+    // then部分の実行
+    Return_t then_result = then_part()->run(func, gvar, lvar);
+    return then_result;
+  }
   else
   {
     if (else_part())
-      return Return_t(true, else_part()->run(func, gvar, lvar).return_val);
+    {
+      // else部分の実行
+      Return_t else_result = else_part()->run(func, gvar, lvar);
+      return else_result;
+    }
     else
       return Return_t(false, 0);
   }
-};
+}
 
 //---------------------------------------------------------------------
 //  St_while::print の実装
@@ -491,14 +494,15 @@ Return_t St_while::run(
     std::map<std::string, int> &gvar,
     std::map<std::string, int> &lvar) const
 {
+
   if (condition())
   {
     while (condition()->run(func, gvar, lvar))
     {
-      body()->run(func, gvar, lvar);
-      lvar["i"]++;
+      Return_t ret = body()->run(func, gvar, lvar);
+      if (ret.val_is_returned)
+        return ret;
     }
-    return Return_t(true, lvar["s"]);
   }
   else
     return Return_t();
@@ -557,17 +561,6 @@ Return_t St_function::run(
 {
   function_.run(func, gvar, lvar);
   return Return_t();
-  // std::map<std::string, Function *>::const_iterator p;
-  // if ((p = func.find(name())) != func.end())
-  // {
-  //   Function *f = p->second;
-  //   return f->run(func, gvar, lvar);
-  // }
-  // else
-  // {
-  //   std::cerr << "undefined function " << name() << std::endl;
-  //   exit(1);
-  // }
 }
 
 //---------------------------------------------------------------------
@@ -575,7 +568,7 @@ Return_t St_function::run(
 //---------------------------------------------------------------------
 void Variable::print(std::ostream &os) const
 {
-  os << Type_string(type()) << " " << name();
+  os << Type_string(type()) << " " << name() << std::flush;
 }
 
 //---------------------------------------------------------------------
@@ -612,7 +605,29 @@ int Function::run(
     std::map<std::string, int> &gvar,
     std::list<int> &i_args) const
 {
-  return i_args.front(); // 仮の実装
+
+  std::map<std::string, int> lvar;
+
+  // 引数の名前と値をローカル変数表に登録する
+  for (std::list<Variable *>::const_iterator it = args().begin();
+       it != args().end(); it++)
+  {
+    lvar[(*it)->name()] = i_args.front();
+    i_args.pop_front();
+  }
+
+  // ローカル変数をローカル変数表に登録する
+  for (std::list<Variable *>::const_iterator it = lvarlist().begin();
+       it != lvarlist().end(); it++)
+  {
+    lvar[(*it)->name()] = 0;
+  }
+
+  // 本体を呼び出す
+  Return_t rd = body()->run(func, gvar, lvar);
+
+  // 本体の返り値を返す
+  return rd.return_val;
 }
 
 //---------------------------------------------------------------------
@@ -633,4 +648,26 @@ void Program::print(std::ostream &os) const
     os << std::endl;
   }
   main()->print(os);
+}
+
+//---------------------------------------------------------------------
+//  Program::run の実装
+//---------------------------------------------------------------------
+int Program::run()
+{
+  std::map<std::string, int> gvar;
+  for (std::list<Variable *>::const_iterator it = varlist().begin();
+       it != varlist().end(); it++)
+  {
+    gvar[(*it)->name()] = 0;
+  }
+  std::map<std::string, Function *> func;
+  for (std::list<Function *>::const_iterator it = funclist().begin();
+       it != funclist().end(); it++)
+  {
+    func[(*it)->name()] = *it;
+  }
+  std::list<int> iargs;
+  int v = main()->run(func, gvar, iargs);
+  return v;
 }
