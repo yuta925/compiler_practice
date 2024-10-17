@@ -1,0 +1,278 @@
+科目名: コンパイラ実習
+課題: 7
+番号: 37022493
+氏名: 西岡　優太
+作成: 2024年10月17日
+
+----------------------------------------
+
+[課題 7.1]
+
+Cパートの冒頭に空白や改行の処理を加えて、コンパイルし、
+./testlex testlex.txtを実行した。
+  4: type = KW_INT     token = "int"
+  4: type = KW_CHAR    token = "char"
+4: 不正な文字 'e'
+と表示できた。特に問題なし。
+
+----------------------------------------
+
+[課題 7.2]
+
+char,intに続き、他のキーワードelse,if,return,whileの定義を追加し、
+テストを実行した。
+  4: type = KW_INT     token = "int"
+  4: type = KW_CHAR    token = "char"
+  4: type = KW_ELSE    token = "else"
+  4: type = KW_IF      token = "if"
+  4: type = KW_RETURN  token = "return"
+  4: type = KW_WHILE   token = "while"
+5: 不正な文字 ';'
+と表示できた。特に問題なし。
+
+----------------------------------------
+
+[課題 7.3]
+&,==に倣って、他の記号の定義を追加して、テストを実行した。
+  4: type = KW_INT     token = "int"
+  4: type = KW_CHAR    token = "char"
+  4: type = KW_ELSE    token = "else"
+  4: type = KW_IF      token = "if"
+  4: type = KW_RETURN  token = "return"
+  4: type = KW_WHILE   token = "while"
+  5: type = SEMICOLON  token = ";"
+  5: type = COMMA      token = ","
+  5: type = LPAR       token = "("
+  5: type = RPAR       token = ")"
+  5: type = LBRACE     token = "{"
+  5: type = RBRACE     token = "}"
+  5: type = LBRACK     token = "["
+  5: type = RBRACK     token = "]"
+  6: type = PLUS       token = "-"
+  6: type = PLUS       token = "+"
+  6: type = PLUS       token = "*"
+  6: type = PLUS       token = "/"
+  6: type = PERCENT    token = "%"
+  6: type = AND        token = "&"
+  6: type = EQ         token = "="
+  6: type = EQEQ       token = "=="
+  6: type = NE         token = "!="
+  6: type = GT         token = ">"
+  6: type = GE         token = ">="
+  6: type = LT         token = "<"
+  6: type = LE         token = "<="
+7: 不正な文字 '1'
+と表示できた。特に問題なし。
+
+----------------------------------------
+
+[課題 7.4]
+
+整数定数の解析のプログラムを作成して、テストを実行した。
+  4: type = KW_INT     token = "int"
+  4: type = KW_CHAR    token = "char"
+  4: type = KW_ELSE    token = "else"
+  4: type = KW_IF      token = "if"
+  4: type = KW_RETURN  token = "return"
+  4: type = KW_WHILE   token = "while"
+  5: type = SEMICOLON  token = ";"
+  5: type = COMMA      token = ","
+  5: type = LPAR       token = "("
+  5: type = RPAR       token = ")"
+  5: type = LBRACE     token = "{"
+  5: type = RBRACE     token = "}"
+  5: type = LBRACK     token = "["
+  5: type = RBRACK     token = "]"
+  6: type = PLUS       token = "-"
+  6: type = PLUS       token = "+"
+  6: type = PLUS       token = "*"
+  6: type = PLUS       token = "/"
+  6: type = PERCENT    token = "%"
+  6: type = AND        token = "&"
+  6: type = EQ         token = "="
+  6: type = EQEQ       token = "=="
+  6: type = NE         token = "!="
+  6: type = GT         token = ">"
+  6: type = GE         token = ">="
+  6: type = LT         token = "<"
+  6: type = LE         token = "<="
+  7: type = INT        token = "1"  val = 1
+  7: type = INT        token = "2"  val = 2
+  7: type = INT        token = "12"  val = 12
+  7: type = INT        token = "123"  val = 123
+  7: type = INT        token = "0123456"  val = 123456
+  7: type = INT        token = "00123456789"  val = 123456789
+8: 不正な文字 'a'
+と表示できた。特に問題なし。
+
+----------------------------------------
+
+[課題 7.5]
+
+識別子の解析のプログラムを作成し、テストを実行した。
+  4: type = ID         token = "int"
+  4: type = ID         token = "char"
+  4: type = ID         token = "else"
+  4: type = ID         token = "if"
+  4: type = ID         token = "return"
+  4: type = ID         token = "while"
+  5: type = SEMICOLON  token = ";"
+  5: type = COMMA      token = ","
+  5: type = LPAR       token = "("
+  5: type = RPAR       token = ")"
+  5: type = LBRACE     token = "{"
+  5: type = RBRACE     token = "}"
+  5: type = LBRACK     token = "["
+  5: type = RBRACK     token = "]"
+  6: type = PLUS       token = "-"
+  6: type = PLUS       token = "+"
+  6: type = PLUS       token = "*"
+  6: type = PLUS       token = "/"
+  6: type = PERCENT    token = "%"
+  6: type = AND        token = "&"
+  6: type = EQ         token = "="
+  6: type = EQEQ       token = "=="
+  6: type = NE         token = "!="
+  6: type = GT         token = ">"
+  6: type = GE         token = ">="
+  6: type = LT         token = "<"
+  6: type = LE         token = "<="
+  7: type = INT        token = "1"  val = 1
+  7: type = INT        token = "2"  val = 2
+  7: type = INT        token = "12"  val = 12
+  7: type = INT        token = "123"  val = 123
+  7: type = INT        token = "0123456"  val = 123456
+  7: type = INT        token = "00123456789"  val = 123456789
+  8: type = ID         token = "a"
+  8: type = ID         token = "b"
+  8: type = ID         token = "c"
+  8: type = ID         token = "abc"
+  8: type = ID         token = "ABC"
+  8: type = ID         token = "main"
+  8: type = ID         token = "x123"
+  8: type = ID         token = "p000Ax3"
+  9: type = ID         token = "_program"
+  9: type = ID         token = "u_p0x_A0x_774"
+10: 不正な文字 '''
+と表示できた。特に問題なし。
+
+----------------------------------------
+
+[課題 7.6]
+
+文字定数の解析のプログラムを作成し、テストを実行した。
+  4: type = KW_INT     token = "int"
+  4: type = KW_CHAR    token = "char"
+  4: type = KW_ELSE    token = "else"
+  4: type = KW_IF      token = "if"
+  4: type = KW_RETURN  token = "return"
+  4: type = KW_WHILE   token = "while"
+  5: type = SEMICOLON  token = ";"
+  5: type = COMMA      token = ","
+  5: type = LPAR       token = "("
+  5: type = RPAR       token = ")"
+  5: type = LBRACE     token = "{"
+  5: type = RBRACE     token = "}"
+  5: type = LBRACK     token = "["
+  5: type = RBRACK     token = "]"
+  6: type = PLUS       token = "-"
+  6: type = PLUS       token = "+"
+  6: type = PLUS       token = "*"
+  6: type = PLUS       token = "/"
+  6: type = PERCENT    token = "%"
+  6: type = AND        token = "&"
+  6: type = EQ         token = "="
+  6: type = EQEQ       token = "=="
+  6: type = NE         token = "!="
+  6: type = GT         token = ">"
+  6: type = GE         token = ">="
+  6: type = LT         token = "<"
+  6: type = LE         token = "<="
+  7: type = INT        token = "1"  val = 1
+  7: type = INT        token = "2"  val = 2
+  7: type = INT        token = "12"  val = 12
+  7: type = INT        token = "123"  val = 123
+  7: type = INT        token = "0123456"  val = 123456
+  7: type = INT        token = "00123456789"  val = 123456789
+  8: type = ID         token = "a"
+  8: type = ID         token = "b"
+  8: type = ID         token = "c"
+  8: type = ID         token = "abc"
+  8: type = ID         token = "ABC"
+  8: type = ID         token = "main"
+  8: type = ID         token = "x123"
+  8: type = ID         token = "p000Ax3"
+  9: type = ID         token = "_program"
+  9: type = ID         token = "u_p0x_A0x_774"
+ 10: type = CHAR       token = "'a'"  val = 97
+ 10: type = CHAR       token = "'b'"  val = 98
+ 10: type = CHAR       token = "'0'"  val = 48
+10: 不正な文字 '''
+と表示できた。特に問題なし。
+
+----------------------------------------
+
+[課題 7.7]
+
+エスケープ記号を含む文字定数の解析プログラムを作成し、テストを実行した。
+  4: type = KW_INT     token = "int"
+  4: type = KW_CHAR    token = "char"
+  4: type = KW_ELSE    token = "else"
+  4: type = KW_IF      token = "if"
+  4: type = KW_RETURN  token = "return"
+  4: type = KW_WHILE   token = "while"
+  5: type = SEMICOLON  token = ";"
+  5: type = COMMA      token = ","
+  5: type = LPAR       token = "("
+  5: type = RPAR       token = ")"
+  5: type = LBRACE     token = "{"
+  5: type = RBRACE     token = "}"
+  5: type = LBRACK     token = "["
+  5: type = RBRACK     token = "]"
+  6: type = MINUS      token = "-"
+  6: type = PLUS       token = "+"
+  6: type = STAR       token = "*"
+  6: type = SLASH      token = "/"
+  6: type = PERCENT    token = "%"
+  6: type = AND        token = "&"
+  6: type = EQ         token = "="
+  6: type = EQEQ       token = "=="
+  6: type = NE         token = "!="
+  6: type = GT         token = ">"
+  6: type = GE         token = ">="
+  6: type = LT         token = "<"
+  6: type = LE         token = "<="
+  7: type = INT        token = "1"  val = 1
+  7: type = INT        token = "2"  val = 2
+  7: type = INT        token = "12"  val = 12
+  7: type = INT        token = "123"  val = 123
+  7: type = INT        token = "0123456"  val = 123456
+  7: type = INT        token = "00123456789"  val = 123456789
+  8: type = ID         token = "a"
+  8: type = ID         token = "b"
+  8: type = ID         token = "c"
+  8: type = ID         token = "abc"
+  8: type = ID         token = "ABC"
+  8: type = ID         token = "main"
+  8: type = ID         token = "x123"
+  8: type = ID         token = "p000Ax3"
+  9: type = ID         token = "_program"
+  9: type = ID         token = "u_p0x_A0x_774"
+ 10: type = CHAR       token = "'a'"  val = 97
+ 10: type = CHAR       token = "'b'"  val = 98
+ 10: type = CHAR       token = "'0'"  val = 48
+ 10: type = CHAR       token = "'\t'"  val = 9
+ 10: type = CHAR       token = "'\n'"  val = 10
+ 10: type = CHAR       token = "'\''"  val = 39
+ 10: type = CHAR       token = "'\\'"  val = 92
+と表示できた。
+
+----------------------------------------
+
+[課題 7 の感想]
+
+コンパイラの始めに行う字句解析について課題を通してどのようにプログラムが
+構築されているのかを知れました。Bパートの正規表現に関して、課題7.7で
+エスケープの正規表現の定義が少し難しかったですがなんとか実装できました。
+Cパートではパターンを書いていくだけで自動で字句解析プログラムが生成されることに感動しました。
+正規表現の学習をもう少しちゃんとやっておけばいいなと反省しました。
