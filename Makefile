@@ -1,8 +1,8 @@
 mci: ast.o lex.yy.o parse.o lex.yy.c
-	g++ -g ast.o lex.yy.o parse.o -o mci
+	g++ -g -std=c++11 ast.o lex.yy.o parse.o -o mci
 
 lex.yy.o: lex.yy.c ast.o parse.cpp.h
-	g++ -c -g lex.yy.c -o lex.yy.o
+	g++ -c -g -std=c++11 lex.yy.c -o lex.yy.o
 lex.yy.c:	lex.ll
 	flex lex.ll
 parse.cpp parse.cpp.h: parse.yy
@@ -11,8 +11,7 @@ parse.o:	parse.cpp ast.h
 ast.o:	ast.h ast.cpp
 
 .cpp.o:
-	-g++ -g -c $<
+	-g++ -g -std=c++11 -c $<
 
 clean: 
 	rm -f mci *.o lex.yy.c parse.cpp parse.cpp.h
-
