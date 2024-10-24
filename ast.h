@@ -16,6 +16,7 @@
 #include <map>
 
 class Function;
+class Variable;
 
 //---------------------------------------------------------------------
 //   Type
@@ -71,6 +72,16 @@ struct Return_t
   int return_val;       // return文が実行された場合、その返り値
   Return_t() : val_is_returned(false), return_val(0) {}
   Return_t(bool r, int v) : val_is_returned(r), return_val(v) {}
+};
+
+//---------------------------------------------------------------------
+//  Declaration_t
+//  宣言リスト
+//---------------------------------------------------------------------
+struct Declaration_t
+{
+  std::list<Variable *> vars;
+  std::list<Function *> funclist;
 };
 
 //---------------------------------------------------------------------

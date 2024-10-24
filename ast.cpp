@@ -307,6 +307,7 @@ int Exp_function::run(
   }
   // 関数の実行
   std::map<std::string, Function *>::const_iterator p;
+
   std::string func_name = name();
   if (func_name == "getint")
   {
@@ -336,6 +337,7 @@ int Exp_function::run(
   {
     if ((p = func.find(name())) != func.end())
     {
+
       Function *f = p->second;
       return f->run(func, gvar, i_args);
     }

@@ -1,0 +1,250 @@
+科目名: コンパイラ実習
+課題: 8b
+番号: 37022493
+氏名: 西岡　優太
+作成: 2024年10月5日
+
+----------------------------------------
+
+[課題 8.12]
+
+statementなど文の構成要素の規則を追加し、make mciを実行した 
+特に問題なし。
+
+(base) nishiokayuuta@dgrlx10 CompilePW % make mci
+bison --verbose --debug -d parse.yy -o parse.cpp
+parse.yy: conflicts: 1 reduce/reduce
+parse.yy:220.9-10: warning: rule never reduced because of conflicts: st_if: /* empty */
+parse.yy:221.12-13: warning: rule never reduced because of conflicts: st_while: /* empty */
+parse.yy:222.13-14: warning: rule never reduced because of conflicts: st_return: /* empty */
+parse.yy:223.15-16: warning: rule never reduced because of conflicts: st_function: /* empty */
+g++ -c -g -std=c++11 lex.yy.c -o lex.yy.o
+clang: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+g++ -g -std=c++11 -c parse.cpp
+g++ -g -std=c++11 ast.o lex.yy.o parse.o -o mci
+
+----------------------------------------
+
+[課題 8.13]
+
+代入文 ::= 変数 "=" 式 ";"に対するst_asssignの記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+x = (((a * b) + c) / d);
+
+特に問題なし。
+
+----------------------------------------
+
+[課題 8.14]
+
+複合分に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t814.mc
+x = (a + 2);
+y = (b * c);
+z = (x + y);
+
+
+特に問題なし。
+
+----------------------------------------
+
+[課題 8.15]
+
+if文に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t815a.mc
+if (a > 0) {
+  b = a;
+} else {
+  b = (-a);
+}
+
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t815b.mc
+if (a > 0) {
+  b = a;
+}
+
+特に問題なし。
+
+----------------------------------------
+
+[課題 8.16]
+
+while文に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t816.mc 
+while (i < n) {
+  s = (s * i);
+  i = (i + 1);
+}
+
+特に問題なし。
+
+----------------------------------------
+[課題 8.17]
+
+return文に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t817.mc
+return 9;
+
+ 特に問題なし。
+
+----------------------------------------
+[課題 8.18]
+
+関数呼び出し文に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t818.mc
+gcd(25, b);
+ 特に問題なし。
+
+----------------------------------------
+[課題 8.19]
+
+変数宣言に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t819.mc
+int x
+ 特に問題なし。
+
+----------------------------------------
+[課題 8.20]
+
+関数宣言（大枠）に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t820.mc
+int kansuu() {
+
+  a = 10;
+  return (x + y);
+}
+
+ 特に問題なし。
+
+----------------------------------------
+[課題 8.21]
+
+関数宣言（引数宣言リストの完成）に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t821.mc
+int kansuu(int n, char c, int x) {
+
+}
+
+ 特に問題なし。
+
+----------------------------------------
+[課題 8.22]
+
+関数宣言（変数宣言リストの完成）に対する記述を追加して
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t822a.mc 
+int kansuu(int n, char c, int x) {
+  int i;
+  int j;
+  int k;
+
+  return x;
+}
+
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci t822b.mc
+int asum(int n) {
+  int s;
+  int i;
+
+  s = 0;
+  i = (-n);
+  while (i <= n) {
+    if (i < 0) {
+      s = (s - i);
+    } else {
+      s = (s + i);
+    }
+    i = (i + 1);
+  }
+  return s;
+}
+
+ 特に問題なし。
+
+----------------------------------------
+[課題 8.23]
+
+プログラム全体の記述を追加して構文解析系を完成させて、
+指定されたファイルを作成し、mciを実行した。
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci factor.mc
+char separator;
+int factor(int n) {
+  int d;
+
+  d = 2;
+  while ((d * d) <= n) {
+    if ((n % d) == 0) {
+      putint(d);
+      putchar(separator);
+      n = (n / d);
+    } else {
+      d = (d + 1);
+    }
+  }
+  putint(n);
+  putchar('\n');
+}
+
+int main() {
+  int n;
+
+  putchar('n');
+  putchar('=');
+  n = getint();
+  separator = '*';
+  factor(n);
+}
+ 特に問題なし。
+
+----------------------------------------
+[課題 8.24]
+
+[実行結果]
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci factor.mc
+n=360
+2*2*2*3*3*5
+
+(base) nishiokayuuta@dgrlx10 CompilePW % ./mci gcd.mc   
+n=48
+m=36
+g=12
+n=9
+m=8
+g=1
+n=0
+m=0
+ 特に問題なし。
+
+----------------------------------------
+
+[課題 8a の感想]
